@@ -24,6 +24,7 @@ def debug_msg():
 
 
 def build_configuration(db_name, root_dir, use_symbols, callee_depth):
+    """ Return a friendly string to show what was passed to this function """
     msg = "Database creation options: \n"
     msg += " - Database Name: {} \n".format(db_name)
     msg += " - Root dir: {} \n".format(root_dir)

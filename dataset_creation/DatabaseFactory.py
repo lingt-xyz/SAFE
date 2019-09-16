@@ -28,7 +28,6 @@ class DatabaseFactory:
     def extract_function(graph_analyzer):
         return graph_analyzer.extractAll()
 
-
     @staticmethod
     def insert_in_db(db_name, pool_sem, func, filename, function_name, instruction_converter):
         path = filename.split(os.sep)
@@ -89,8 +88,8 @@ class DatabaseFactory:
 
         return 0
 
-    # Create the db where data are stored
     def create_db(self):
+        """ Create tables 'functions' and 'filtered_functions' """
         print('Database creation...')
         conn = sqlite3.connect(self.db_name)
         conn.execute(''' CREATE TABLE  IF NOT EXISTS functions (id INTEGER PRIMARY KEY, 
