@@ -5,8 +5,10 @@ from FunctionSearchEngine import FunctionSearchEngine
 from sklearn import metrics
 import sqlite3
 
+import os
 from multiprocessing import Process
 import math
+from pathlib import Path
 
 import warnings
 import random
@@ -120,12 +122,14 @@ if __name__ == '__main__':
 
     random.seed(12345)
 
-    dbName = '../data/AMD64PostgreSQL.db'
+    dbName = Path(__file__).parent.parent / 'data/AMD64PostgreSQL.db'
     table = ['safe_embeddings']
     opt = ["O0", "O1", "O2", "O3"]
     for x in ['gcc-4.8',"clang-4.0",'gcc-7','clang-6.0']:
         for t in table:
             for o in opt:
-                p = Process(target=test, args=(dbName, t, o,x,200))
-                p.start()
-                p.join()
+                #p = Process(target=test, args=(dbName, t, o,x,200))
+                #p.start()
+                #p.join()
+                pass
+    test(dbName, table[0], "O0", 'gcc-7', 10)
