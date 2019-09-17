@@ -1,7 +1,7 @@
 # SAFE TEAM
 # distributed under license: GPL 3 License http://www.gnu.org/licenses/
 
-from FunctionSearchEngine import FunctionSearchEngine
+from function_search.FunctionSearchEngine import FunctionSearchEngine
 from sklearn import metrics
 import sqlite3
 
