@@ -93,17 +93,18 @@ class SearchEngineEvaluator:
                 y_true.append(0)
         return f_label, y_true, y_score
 
-    # this methos execute the test
-    # it select the targets functions and it looks up for the targets in the entire db
-    # the outcome is json file containing the top 200 similar for each target function.
-    # the json file is an array and such array contains an entry for each target function
-    # each entry is a triple (t0,t1,t2)
-    # t0: an array that contains 1 at entry j if the entry j is similar to the target 0 otherwise
-    # t1: the number of similar functions to the target in the whole db
-    # t2: an array that at entry j contains the similarity score of the j-th most similar function to the target.
-    #
-    #
+
     def evaluate_precision_on_all_functions(self, compiler, opt):
+        """ 
+        this method execute the test
+        it select the targets functions and it looks up for the targets in the entire db
+        the outcome is json file containing the top 200 similar for each target function.
+        the json file is an array and such array contains an entry for each target function
+        each entry is a triple (t0,t1,t2)
+        t0: an array that contains 1 at entry j if the entry j is similar to the target 0 otherwise
+        t1: the number of similar functions to the target in the whole db
+        t2: an array that at entry j contains the similarity score of the j-th most similar function to the target.
+        """
         target_fcn_ids, true_labels = self.find_target_fcn(compiler, opt, 10000)
         batch = 1000
         trunc_labels = self.SE.trunc_labels
