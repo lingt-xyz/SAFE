@@ -5,8 +5,12 @@ import r2pipe
 
 
 class RadareFunctionAnalyzer:
+    """
+    """
 
     def __init__(self, filename, use_symbol, depth):
+        # -2 signifies disable stderr
+        # https://r2wiki.readthedocs.io/en/latest/home/radare2-python-scripting/
         self.r2 = r2pipe.open(filename, flags=['-2'])
         self.filename = filename
         self.arch, _ = self.get_arch()
@@ -73,6 +77,8 @@ class RadareFunctionAnalyzer:
         return calls
 
     def get_instruction(self):
+        # display opcode analysis information in JSON for 1 opcodes
+        # https://r2wiki.readthedocs.io/en/latest/options/a/ao/
         instruction = json.loads(self.r2.cmd("aoj 1"))
         if len(instruction) > 0:
             instruction = instruction[0]
@@ -127,7 +133,15 @@ class RadareFunctionAnalyzer:
         return instructions, asm
 
     def get_arch(self):
+        """ Read arch and bits information from self.r2
+
+        Returns:
+            arch: 
+            bits:
+        """
         try:
+            # i: Get info from opened file; j: Output in json
+            # https://r2wiki.readthedocs.io/en/latest/options/i/
             info = json.loads(self.r2.cmd('ij'))
             if 'bin' in info:
                 arch = info['bin']['arch']
@@ -139,6 +153,9 @@ class RadareFunctionAnalyzer:
         return arch, bits
 
     def find_functions(self):
+        # analyze all public symbols
+        # autoname functions after aa
+        # https://r2wiki.readthedocs.io/en/latest/options/a/aa/
         self.r2.cmd('aaa')
         try:
             function_list = json.loads(self.r2.cmd('aflj'))
