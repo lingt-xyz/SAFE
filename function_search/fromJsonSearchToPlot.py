@@ -88,7 +88,7 @@ def compare_and_print(file):
     return avg_p1, recall_p1, precision1
 
 
-e1 = 'embeddings_safe'
+e1 = 'safe_embeddings'
 
 opt = ['O0', 'O1', 'O2', 'O3']
 compilers = ['gcc-7', 'gcc-4.8', 'clang-6.0', 'clang-4.0']
