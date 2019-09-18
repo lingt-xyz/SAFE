@@ -75,10 +75,10 @@ class FunctionSearchEngine:
 
             self.lista_embedding.append(self.embeddingToNp(e[0]))
 
-            element = "{}/{}/{}".format(item[1], item[4], item[5])
+            element = "{}/{}/{}".format(item[1], item[4], item[5]) # 'postgresql/96_compilati/pgsleep_srv.o/pg_usleep'
             self.trunc_labels.append(element)
 
-            element = "{}@{}/{}/{}/{}".format(item[5], item[1], item[2], item[3], item[4])
+            element = "{}@{}/{}/{}/{}".format(item[5], item[1], item[2], item[3], item[4]) # 'pg_usleep@postgresql/96_compilati/gcc-4.9/O0/pgsleep_srv.o'
             self.labels.append(element)
             self.ids.append(item[0])
 
@@ -88,6 +88,16 @@ class FunctionSearchEngine:
         self.num_funcs = len(self.lista_embedding)
 
     def load_target(self, target_db_name, target_fcn_ids, calc_mean=False):
+        """ Construct a matrix representing the target functions' embeddings
+
+        Args:
+            target_db_name:
+            target_fcn_ids:
+            calc_mean:
+
+        Returns:
+            A matrix of the target functions' embeddings
+        """
         conn = sqlite3.connect(target_db_name)
         cur = conn.cursor()
         mean = None
@@ -101,7 +111,7 @@ class FunctionSearchEngine:
                 e = q.fetchone()
                 e = self.embeddingToNp(e[0])
 
-
+            # Construct the matrix of the target functions' embeddings
             if mean is None:
                 mean = e.reshape([e.shape[0], 1])
             else:

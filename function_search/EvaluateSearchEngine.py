@@ -37,6 +37,21 @@ class SearchEngineEvaluator:
     # moreover it populates the self.number_similar dictionary, that contains the number of similar function for each target
     #
     def find_target_fcn(self, compiler, opt, num):
+        """ Randomly choose some records from the tables "functions" and fetch the total number of each similar function.
+
+        Records would be chosen with the conditions "compiler" and "opt". 
+        The num of the records returned is the smaller value of "num" and the total number of the records.
+
+        Args:
+            compiler (str):
+            opt (str):
+            num (int):
+
+        Returns:
+            A tuple that has two arrays: 
+                the first array contains the ids and 
+                the second array contains the labels of the randomly chosen functions.
+        """
         conn = sqlite3.connect(self.db_name)
         cur = conn.cursor()
         q = cur.execute("SELECT id, project, file_name, function_name FROM functions WHERE compiler=? AND optimization=?", (compiler, opt))
@@ -64,17 +79,19 @@ class SearchEngineEvaluator:
         return n_ids, n_true_labels
 
     @staticmethod
-    def functions_ground_truth(labels, indices, values, true_label):
+    def functions_ground_truth(labels, trunc_labels, indices, values, true_label):
+        f_label = []
         y_true = []
         y_score = []
         for i, e in enumerate(indices):
             y_score.append(float(values[i]))
-            l = labels[e]
+            l = trunc_labels[e]
+            f_label.append(labels[e])
             if l == true_label:
                 y_true.append(1)
             else:
                 y_true.append(0)
-        return y_true, y_score
+        return f_label, y_true, y_score
 
     # this methos execute the test
     # it select the targets functions and it looks up for the targets in the entire db
@@ -89,7 +106,8 @@ class SearchEngineEvaluator:
     def evaluate_precision_on_all_functions(self, compiler, opt):
         target_fcn_ids, true_labels = self.find_target_fcn(compiler, opt, 10000)
         batch = 1000
-        labels = self.SE.trunc_labels
+        trunc_labels = self.SE.trunc_labels
+        labels = self.SE.labels
 
         info=[]
 
@@ -100,9 +118,9 @@ class SearchEngineEvaluator:
             top_k = self.SE.top_k(target, self.k)
 
             for j in range(0, batch):
-                a, b = SearchEngineEvaluator.functions_ground_truth(labels, top_k.indices[j, :], top_k.values[j, :], true_labels[i+j])
+                f_label, a, b = SearchEngineEvaluator.functions_ground_truth(labels, trunc_labels, top_k.indices[j, :], top_k.values[j, :], true_labels[i+j])
 
-                info.append((a,self.number_similar[true_labels[i + j]],b))
+                info.append((f_label, a, [true_labels[i + j], self.number_similar[true_labels[i + j]]],b))
 
         with open(compiler+'_'+opt+'_'+self.tables+'_top200.json', 'w') as outfile:
                 json.dump(info, outfile)
@@ -132,4 +150,4 @@ if __name__ == '__main__':
                 #p.start()
                 #p.join()
                 pass
-    test(dbName, table[0], "O0", 'gcc-7', 10)
+    test(dbName, table[0], "O0", 'gcc-7', 200)
