@@ -52,8 +52,8 @@ class SearchEngineEvaluator:
             n_ids.append(ids[index])
             n_true_labels.append(true_labels[index])
             f_name=true_labels[index].split('/')[2]
-            fi_name=true_labels[index].split('/')[1]
-            q = cur.execute("SELECT num FROM count_func WHERE file_name='{}' and function_name='{}'".format(fi_name,f_name))
+            fi_name=true_labels[index].split('/')[3]
+            q = cur.execute("SELECT num FROM count_func WHERE file_name='{}' and function_name='{}'".format(f_name, fi_name))
             f = q.fetchone()
             if f is not None:
                 num=int(f[0])
