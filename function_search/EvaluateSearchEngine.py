@@ -39,8 +39,9 @@ class SearchEngineEvaluator:
     def find_target_fcn(self, compiler, opt, num):
         """ Randomly choose some records from the tables "functions" and fetch the total number of each similar function.
 
-        Records would be chosen with the conditions "compiler" and "opt". 
-        The num of the records returned is the smaller value of "num" and the total number of the records.
+        Records would be chosen with the conditions of "compiler" and "opt". 
+        The number of the returned records is the smaller value of "num" and the total number of the records.
+        The number is stored in the self.number_similar dictionary with the key "label".
 
         Args:
             compiler (str):
@@ -80,6 +81,25 @@ class SearchEngineEvaluator:
 
     @staticmethod
     def functions_ground_truth(labels, trunc_labels, indices, values, true_label):
+        """ Get the ground truth and similarity score of elements compared to true_label".
+
+        Get every element in "trunc_labels" at indexes in "indices" and compare its label with "true_label".
+        If they are the same, set the ground truth to be 1; otherwise, 0.
+        Get the corresponding similarity score of this element from "values".
+
+        Args:
+            labels: distinct labels for functions, in the form of "PublishStartupProcessInformation@postgresql/96_compilati/clang-5.0/O2/proc.o"
+            trunc_labels: general labels for similar functions, in the form of "postgresql/96_compilati/proc.o/PublishStartupProcessInformation"
+            indices: index array
+            values: similarity score array
+            true_label: the label of the target function
+
+        Returns:
+            A tuple that consistents of three arrays:
+                the first array contains the distinct label for each function to be compared with the target function
+                the second array contains the ground true of each function
+                the third array contains the similarity score of each function
+        """
         f_label = []
         y_true = []
         y_score = []
@@ -123,7 +143,7 @@ class SearchEngineEvaluator:
 
                 info.append((f_label, a, [true_labels[i + j], self.number_similar[true_labels[i + j]]],b))
 
-        with open(compiler+'_'+opt+'_'+self.tables+'_top200.json', 'w') as outfile:
+        with open(compiler+'_'+opt+'_'+self.tables+'_top10.json', 'w') as outfile:
                 json.dump(info, outfile)
 
 
@@ -151,4 +171,4 @@ if __name__ == '__main__':
                 #p.start()
                 #p.join()
                 pass
-    test(dbName, table[0], "O0", 'gcc-7', 200)
+    test(dbName, table[0], "O0", 'gcc-7', 10)
