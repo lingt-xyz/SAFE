@@ -87,8 +87,26 @@ class FunctionSearchEngine:
         self.s2v.loads_embeddings_SE(self.lista_embedding)
         self.num_funcs = len(self.lista_embedding)
 
+    def load_one_target(self, target_db_name, id):
+        """ This function is for testing purpose"""
+        conn = sqlite3.connect(target_db_name)
+        cur = conn.cursor()
+        mean = None
+
+        if target_db_name == self.db_name and id in self.ids:
+            idx = self.ids.index(id)
+            e = self.lista_embedding[idx]
+        else:
+            q = cur.execute("SELECT " + self.table_name + " FROM " + self.table_name + " WHERE id=?", (id,))
+            e = q.fetchone()
+            e = self.embeddingToNp(e[0])
+
+        return e.reshape([1, e.shape[0]])
+
     def load_target(self, target_db_name, target_fcn_ids, calc_mean=False):
         """ Construct a matrix representing the target functions' embeddings
+
+        Each row of this matrix is the embeddings of a function.
 
         Args:
             target_db_name:

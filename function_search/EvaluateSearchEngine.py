@@ -113,6 +113,22 @@ class SearchEngineEvaluator:
                 y_true.append(0)
         return f_label, y_true, y_score
 
+    def evaluate_precision_on_one_functions(self, compiler, opt, k):
+        target_fcn_ids, true_labels = self.find_target_fcn(compiler, opt, 10000)
+        batch = 1000
+        trunc_labels = self.SE.trunc_labels
+        labels = self.SE.labels
+
+        info=[]
+
+        target = self.SE.load_one_target(self.db_name, target_fcn_ids[0])
+        top_k = self.SE.top_k(target, self.k)
+        f_label, a, b = SearchEngineEvaluator.functions_ground_truth(labels, trunc_labels, top_k.indices[0, :], top_k.values[0, :], true_labels[0])
+
+        info.append((f_label, a, [target_fcn_ids[0], compiler, opt, self.number_similar[true_labels[0]]],b))
+
+        with open(compiler+'_'+opt+'_'+self.tables+'_top'+str(k)+'.json', 'w') as outfile:
+                json.dump(info, outfile)
 
     def evaluate_precision_on_all_functions(self, compiler, opt):
         """ 
@@ -143,7 +159,7 @@ class SearchEngineEvaluator:
 
                 info.append((f_label, a, [true_labels[i + j], self.number_similar[true_labels[i + j]]],b))
 
-        with open(compiler+'_'+opt+'_'+self.tables+'_top10.json', 'w') as outfile:
+        with open(compiler+'_'+opt+'_'+self.tables+'_top200.json', 'w') as outfile:
                 json.dump(info, outfile)
 
 
@@ -152,7 +168,8 @@ def test(dbName, table, opt,x,k):
     print("k:{} - Table: {} - Opt: {}".format(k,table, opt))
 
     SEV = SearchEngineEvaluator(dbName, table, limit=2000000,k=k)
-    SEV.evaluate_precision_on_all_functions(x, opt)
+    #SEV.evaluate_precision_on_all_functions(x, opt)
+    SEV.evaluate_precision_on_one_functions(x, opt, k)
 
     print("-------------------------------------")
 
@@ -171,4 +188,4 @@ if __name__ == '__main__':
                 #p.start()
                 #p.join()
                 pass
-    test(dbName, table[0], "O0", 'gcc-7', 10)
+    test(dbName, table[0], "O0", 'gcc-7', 100)
