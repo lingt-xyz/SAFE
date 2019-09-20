@@ -30,6 +30,19 @@ class DatabaseFactory:
 
     @staticmethod
     def insert_in_db(db_name, pool_sem, func, filename, function_name, instruction_converter):
+        """ Insert the records into the tables `functions` and `filtered_functions`
+
+        Args:
+            dn_name:
+            pool_sem:
+            func:
+            filename:
+            function_name:
+            instruction_converter:
+        
+        Returns:
+            None
+        """
         path = filename.split(os.sep)
         if len(path) < 4:
             return
@@ -58,6 +71,11 @@ class DatabaseFactory:
 
     @staticmethod
     def analyze_file(item):
+        """Read file and insert the functions information into the table `functions` and `filtered_functions`
+
+        Returns:
+            0
+        """
         global pool_sem
         os.setpgrp()
 
@@ -89,7 +107,7 @@ class DatabaseFactory:
         return 0
 
     def create_db(self):
-        """ Create tables 'functions' and 'filtered_functions' """
+        """ Create tables `functions` and `filtered_functions` """
         print('Database creation...')
         conn = sqlite3.connect(self.db_name)
         conn.execute(''' CREATE TABLE  IF NOT EXISTS functions (id INTEGER PRIMARY KEY, 
@@ -107,9 +125,12 @@ class DatabaseFactory:
         conn.commit()
         conn.close()
 
-    # Scan the root directory to find all the file to analyze,
-    # query also the db for already analyzed files.
     def scan_for_file(self, start):
+        """Scan all files in `self.root_path` recursivly.
+
+        Returns:
+            An array containing all `.o` files.
+        """
         file_list = []
         # Scan recursively all the subdirectory
         directories = os.listdir(start)
@@ -121,9 +142,15 @@ class DatabaseFactory:
                 file_list.append(item)
         return file_list
 
-    # Looks for already existing files in the database
-    # It returns a list of files that are not in the database
     def remove_override(self, file_list):
+        """Remove files that already in the table `functions` from `file_list`.
+
+        Args:
+            file_list:
+
+        Returns:
+            An array contains all files that in `file_list` but not in the table `functions`
+        """
         conn = sqlite3.connect(self.db_name)
         cur = conn.cursor()
         q = cur.execute('''SELECT project, compiler, optimization, file_name FROM functions''')
@@ -153,7 +180,7 @@ class DatabaseFactory:
         print('Found ' + str(len(file_list)) + ' during the scan')
         file_list = self.remove_override(file_list)
         print('Find ' + str(len(file_list)) + ' files to analyze')
-        random.shuffle(file_list)
+        random.shuffle(file_list) # why shffle?
 
         t_args = [(f, self.db_name, use_symbol, depth, instruction_converter) for f in file_list]
 

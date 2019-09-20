@@ -95,6 +95,13 @@ class RadareFunctionAnalyzer:
         return instruction
 
     def function_to_inst(self, functions_dict, my_function, depth):
+        """Get filtered instructions and assembly bytes of opcode in each instruction of `my_function`
+
+        Returns:
+            A tuple consists of arrays:
+                the first array contains filtered instructions,
+                the second array contains the concatenation of assembly bytes of opcode in each instruction
+        """
         instructions = []
         asm = ""
 
@@ -153,6 +160,11 @@ class RadareFunctionAnalyzer:
         return arch, bits
 
     def find_functions(self):
+        """Use `r2` find all functions
+
+        Returns:
+            An array containing all functions
+        """
         # analyze all public symbols
         # autoname functions after aa
         # https://r2wiki.readthedocs.io/en/latest/options/a/aa/
@@ -173,6 +185,11 @@ class RadareFunctionAnalyzer:
         return fcn_symb
 
     def analyze(self):
+        """ Get filtered instructions, assembly bytes and addresses of each function in the file.
+
+        Returns:
+            A dictionary that has the keys of function names, and values of function filtered instructions, assembly bytes and addresses.
+        """
         if self.use_symbol:
             function_list = self.find_functions_by_symbols()
         else:
